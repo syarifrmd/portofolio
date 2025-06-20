@@ -1,4 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portfolio Project
+
+This is a Next.js portfolio project with MongoDB integration.
+
+## Setup MongoDB
+
+1. Create a `.env.local` file in the root directory with the following content:
+
+```env
+MONGODB_URI=mongodb+srv://syarifroma:aTPjy3cVzI2C57A0@cluster1.kozbnl4.mongodb.net/?retryWrites=true&w=majority&appName=cluster1
+MONGODB_DB=portofolio
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Run the development server:
+```bash
+npm run dev
+```
+
+4. Test the database connection by visiting:
+```
+http://localhost:3000/api/test-db
+```
+
+## API Endpoints
+
+- `GET /api/test-db` - Test database connection
+- `GET /api/projects` - Get all projects
+- `POST /api/projects` - Create a new project
+
+## Database Structure
+
+The project uses MongoDB with the following collections:
+- `projects` - Portfolio projects data
+
+## Features
+
+- Next.js 15 with App Router
+- MongoDB integration
+- TypeScript support
+- Tailwind CSS
+- Three.js for 3D graphics
+- Framer Motion for animations
 
 ## Getting Started
 
