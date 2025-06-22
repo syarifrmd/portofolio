@@ -13,6 +13,7 @@ import ScrollVelocity from './components/ScrollVelocity/ScrollVelocity';
 import ProjectCard from './components/ProjectCard';
 import ProfileCard from "./components/ProfileCard/ProfileCard";
 import ContactForm from "./components/ContactForm";
+import { TypeAnimation } from 'react-type-animation';
 
 // This function will fetch data on the server
 async function getProjects() {
@@ -35,11 +36,31 @@ async function getProjects() {
   }
 }
 
+const roles = [
+  {
+    title: "Web Developer",
+    description: `Hai! Saya seorang Web Developer yang suka mengeksplorasi ide-ide baru. Coding bagi saya adalah bentuk kreativitas. Saya siap membangun website yang cepat, modern, dan bermakna.`
+  },
+  {
+    title: "UI/UX Designer",
+    description: `Hai, saya seorang UI/UX Designer yang fokus pada menciptakan pengalaman pengguna yang nyaman serta tampilan antarmuka yang intuitif dan fungsional. Saya telah menangani beberapa proyek UI/UX untuk berbagai kebutuhan, mulai dari aplikasi mobile hingga platform berbasis web. Jangan ragu ayo hubungi saya!`
+  },
+  {
+    title: "Graphic Designer",
+    description: `Hai, saya juga seorang Graphic Designer yang terbiasa menyusun elemen visual yang kuat, konsisten, dan komunikatif. Dalam setiap desain, saya berupaya menyatukan estetika visual dengan identitas dan nilai brand yang ingin disampaikan. Saya telah terlibat dalam berbagai kebutuhan desain seperti branding, poster, konten sosial media, hingga materi promosi digital.`
+  },
+  {
+    title: "Media Creative",
+    description: `Hai, sebagai Media Creative, saya suka bikin konten visual yang nggak cuma menarik dilihat, tapi juga nyambung dengan audiens. Mulai dari video, animasi ringan, sampai materi visual untuk media sosial—saya usahakan semuanya punya cerita dan kesan yang pas. Buat saya, konten yang bagus itu bukan cuma keren, tapi juga nyampe pesannya.`
+  }
+];
+
 export default function Home() {
   const [projects, setProjects] = useState([]);
   const [isVisible, setIsVisible] = useState(false);
   const [showAllProjects, setShowAllProjects] = useState(false);
   const { scrollYProgress } = useScroll();
+  const [isMobile, setIsMobile] = useState(false);
   
   // Transform values for text (left side)
   const textOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
@@ -50,6 +71,13 @@ export default function Home() {
   const rightContentX = useTransform(scrollYProgress, [0, 0.2], [0, 100]);
 
   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
     // Fetch projects
     const fetchProjects = async () => {
       const projectsData = await getProjects();
@@ -58,11 +86,12 @@ export default function Home() {
     };
     fetchProjects();
 
-    AOS.init({ 
-      duration: 1000, 
-      once: true, 
+    AOS.init({
+      duration: 1000,
+      once: true,
       easing: "ease-out-cubic",
-      offset: 100
+      offset: 100,
+      disable: 'mobile', // Menonaktifkan AOS di mobile
     });
 
     // Trigger counting animation when stats are in view
@@ -80,7 +109,10 @@ export default function Home() {
       observer.observe(statsSection);
     }
 
-    return () => observer.disconnect();
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      observer.disconnect();
+    };
   }, []);
 
   // Get projects to display (3 latest initially, or all if showAllProjects is true)
@@ -98,6 +130,31 @@ export default function Home() {
         />
       </Head>
 
+      {/* Animated Glow Elements from Project Detail Page */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Top Right Glow */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-blue-500/20 via-purple-500/15 to-transparent rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute top-20 right-20 w-[400px] h-[400px] bg-gradient-to-br from-cyan-400/25 to-transparent rounded-full blur-2xl animate-bounce-slow"></div>
+        
+        {/* Center Left Glow */}
+        <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-blue-600/20 via-indigo-500/15 to-transparent rounded-full blur-3xl animate-pulse-slow" style={{animationDelay: '1s'}}></div>
+        <div className="absolute top-1/2 left-10 -translate-y-1/2 w-[300px] h-[300px] bg-gradient-to-r from-sky-400/30 to-transparent rounded-full blur-2xl animate-bounce-slow" style={{animationDelay: '0.5s'}}></div>
+        
+        {/* Bottom Right Glow */}
+        <div className="absolute bottom-0 right-0 w-[450px] h-[450px] bg-gradient-to-tl from-purple-500/20 via-pink-500/15 to-transparent rounded-full blur-3xl animate-pulse-slow" style={{animationDelay: '2s'}}></div>
+        <div className="absolute bottom-20 right-20 w-[350px] h-[350px] bg-gradient-to-tl from-indigo-400/25 to-transparent rounded-full blur-2xl animate-bounce-slow" style={{animationDelay: '1.5s'}}></div>
+        
+        {/* Floating Particles */}
+        <div className="absolute top-1/4 left-1/4 w-3 h-3 bg-blue-400/60 rounded-full animate-float-slow"></div>
+        <div className="absolute top-1/3 right-1/3 w-2.5 h-2.5 bg-cyan-400/50 rounded-full animate-float-slow" style={{animationDelay: '1s'}}></div>
+        <div className="absolute bottom-1/4 left-1/3 w-2 h-2 bg-purple-400/40 rounded-full animate-float-slow" style={{animationDelay: '2s'}}></div>
+        <div className="absolute bottom-1/3 right-1/4 w-2.5 h-2.5 bg-indigo-400/50 rounded-full animate-float-slow" style={{animationDelay: '0.5s'}}></div>
+        
+        {/* === New Glows Added === */}
+        <div className="absolute top-10 left-20 w-[300px] h-[300px] bg-gradient-to-bl from-rose-400/15 to-transparent rounded-full blur-2xl animate-bounce-slow" style={{animationDelay: '2.5s'}}></div>
+        <div className="absolute bottom-10 left-10 w-[400px] h-[400px] bg-gradient-to-tr from-emerald-500/15 via-teal-500/10 to-transparent rounded-full blur-3xl animate-pulse-slow" style={{animationDelay: '3s'}}></div>
+      </div>
+      
       {/* Header Section with Aurora */}
       <section className="relative">
         {/* Background */}
@@ -112,7 +169,7 @@ export default function Home() {
         
         {/* Header */}
         <header
-          className="relative z-50 flex justify-between items-center py-8 px-60 lg:px-60"
+          className="relative z-50 flex justify-between items-center py-8 px-6 sm:px-12 lg:px-20"
           data-aos="fade-down"
         >
           <div className="text-2xl font-bold text-gradient hover:text-blue-400 transition-colors duration-300">Riif Creative</div>
@@ -129,28 +186,55 @@ export default function Home() {
       <main className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pt-10">
         {/* Hero Section */}
         <section className="grid lg:grid-cols-12 gap-8 items-center py-12 lg:py-20">
-          <motion.div 
-            className="lg:col-span-6 space-y-6"
-            style={{ opacity: textOpacity, x: textX }}
+          <motion.div
+            className="lg:col-span-6 space-y-6 text-center lg:text-left"
+            style={isMobile ? { opacity: 1 } : { opacity: textOpacity, x: textX }}
             initial={{ opacity: 0, x: -100 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <div>
-              <p className="text-neutral-300 text-3xl lg:text-4xl font-medium mb-4 hover:text-blue-400 transition-colors duration-300">
-                Web Developer
-              </p>
-              <h1 className="text-4xl lg:text-6xl font-semibold tracking-wide text-gradient typing-effect hover:text-blue-400 transition-colors duration-300">
+              <TypeAnimation
+                sequence={[
+                  roles[0].title,
+                  9000,
+                  roles[1].title,
+                  14000,
+                  roles[2].title,
+                  15000,
+                  roles[3].title,
+                  15500,
+                ]}
+                wrapper="p"
+                speed={10}
+                deletionSpeed={10}
+                className="text-neutral-300 text-3xl lg:text-4xl font-medium mb-4"
+                repeat={Infinity}
+              />
+              <h1 className="text-4xl lg:text-6xl font-semibold tracking-wide text-gradient">
                 Syarif Romadloni
               </h1>
             </div>
-            <div className="w-28 h-2.5 bg-gradient-to-r from-sky-500 to-cyan-400 rounded-lg pulse-slow hover:from-blue-400 hover:to-blue-500 transition-all duration-300" />
-            <p className="text-neutral-300 text-lg lg:text-xl leading-relaxed max-w-lg hover:text-blue-400 transition-colors duration-300">
-              Hai! Saya seorang Web Developer yang suka mengeksplorasi ide-ide baru.
-              Coding bagi saya adalah bentuk kreativitas.
-              Saya siap membangun website yang cepat, modern, dan bermakna.
-            </p>
-            <button className="download-btn flex items-center space-x-3 px-6 py-3 rounded-lg border border-neutral-300 text-neutral-300 font-medium hover:border-blue-400 hover:text-blue-400 hover:bg-blue-400/10 transition-all duration-300">
+            <div className="w-28 h-2.5 bg-gradient-to-r from-sky-500 to-cyan-400 rounded-lg pulse-slow mx-auto lg:mx-0" />
+            <TypeAnimation
+              sequence={[
+                roles[0].description,
+                5000,
+                roles[1].description,
+                5000,
+                roles[2].description,
+                5000,
+                roles[3].description,
+                5000,
+              ]}
+              wrapper="p"
+              speed={70}
+              deletionSpeed={99}
+              className="text-neutral-300 text-lg lg:text-xl leading-relaxed max-w-lg mx-auto lg:mx-0"
+              repeat={Infinity}
+              style={{ minHeight: '150px' }}
+            />
+            <button className="download-btn flex items-center space-x-3 px-6 py-3 rounded-lg border border-neutral-300 text-neutral-300 font-medium hover:border-blue-400 hover:text-blue-400 hover:bg-blue-400/10 transition-all duration-300 mx-auto lg:mx-0">
               <span>Download CV</span>
               <svg
                 className="w-5 h-5 transform rotate-90 group-hover:translate-y-1 transition-transform duration-300"
@@ -170,45 +254,45 @@ export default function Home() {
 
           <motion.div
             className="lg:col-span-4 flex justify-center"
-            style={{ opacity: rightContentOpacity, x: rightContentX }}
+            style={isMobile ? { opacity: 1 } : { opacity: rightContentOpacity, x: rightContentX }}
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <div className="relative group">
+            <div className="relative group w-10/12 sm:w-auto">
               <Image
                 src="/assets/images/hero.jpg"
                 alt="Syarif Romadloni"
                 width={384}
                 height={500}
-                className="profile-img object-cover rounded-2xl shadow-2xl group-hover:shadow-blue-400/20 transition-all duration-300"
+                className="profile-img object-cover rounded-2xl shadow-2xl w-full h-auto group-hover:shadow-blue-400/20 transition-all duration-300"
               />
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-slate-950/50 to-transparent group-hover:from-blue-400/20 transition-all duration-300" />
             </div>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             className="lg:col-span-2 space-y-8 stats-section"
-            style={{ opacity: rightContentOpacity, x: rightContentX }}
+            style={isMobile ? { opacity: 1 } : { opacity: rightContentOpacity, x: rightContentX }}
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
-            <div className="text-right space-y-2 group">
+            <div className="text-center lg:text-right space-y-2 group">
               <p className="text-neutral-300 text-lg group-hover:text-blue-400 transition-colors duration-300">Year of<br />Experience</p>
-              <p className="stat-counter text-white text-5xl font-bold group-hover:text-blue-400 transition-colors duration-300">
+              <p className="stat-counter text-white text-4xl sm:text-5xl font-bold group-hover:text-blue-400 transition-colors duration-300">
                 {isVisible && <CountUp end={3} duration={3.5} suffix="+" enableScrollSpy scrollSpyOnce={false} />}
               </p>
             </div>
-            <div className="text-right space-y-2 group">
+            <div className="text-center lg:text-right space-y-2 group">
               <p className="text-neutral-300 text-lg group-hover:text-blue-400 transition-colors duration-300">Complete<br />Project</p>
-              <p className="stat-counter text-white text-5xl font-bold group-hover:text-blue-400 transition-colors duration-300">
+              <p className="stat-counter text-white text-4xl sm:text-5xl font-bold group-hover:text-blue-400 transition-colors duration-300">
                 {isVisible && <CountUp end={10} duration={3.5} enableScrollSpy scrollSpyOnce={false} />}
               </p>
             </div>
-            <div className="text-right space-y-2 group">
+            <div className="text-center lg:text-right space-y-2 group">
               <p className="text-neutral-300 text-lg group-hover:text-blue-400 transition-colors duration-300">Client</p>
-              <p className="stat-counter text-white text-5xl font-bold group-hover:text-blue-400 transition-colors duration-300">
+              <p className="stat-counter text-white text-4xl sm:text-5xl font-bold group-hover:text-blue-400 transition-colors duration-300">
                 {isVisible && <CountUp end={10} duration={3.5} enableScrollSpy scrollSpyOnce={false} />}
               </p>
             </div>
@@ -248,7 +332,7 @@ Bagi saya, teknologi bukan sekadar alat, tapi ruang untuk menuangkan ide, memeca
         <ScrollVelocity
           texts={['   Experience With   -   ']}
           velocity={30}
-          className="text-gray-300 font-bold text-5xl tracking-widest uppercase"
+          className="text-gray-300 font-bold text-3xl md:text-5xl tracking-widest uppercase"
           damping={50}
           stiffness={400}
           numCopies={20}
@@ -257,7 +341,7 @@ Bagi saya, teknologi bukan sekadar alat, tapi ruang untuk menuangkan ide, memeca
         />
         
         {/* Skills Icons dengan efek scroll velocity */}
-        <div className="flex flex-wrap justify-center gap-12">
+        <div className="flex flex-wrap justify-center gap-8 md:gap-12">
           {/* Laravel SVG */}
           <motion.span 
             className="w-16 h-16 flex items-center justify-center grayscale hover:grayscale-0 transition duration-300"
@@ -327,7 +411,7 @@ Bagi saya, teknologi bukan sekadar alat, tapi ruang untuk menuangkan ide, memeca
         <ScrollVelocity
           texts={['   Experience With   -   ']}
           velocity={-30}
-          className="text-gray-300 py-12 font-bold text-4xl tracking-widest uppercase"
+          className="text-gray-300 py-12 font-bold text-3xl md:text-4xl tracking-widest uppercase"
           damping={50}
           stiffness={400}
           numCopies={20}
@@ -423,7 +507,7 @@ Bagi saya, teknologi bukan sekadar alat, tapi ruang untuk menuangkan ide, memeca
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-12 items-start">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
             {/* Left Column: Profile Card */}
             <div className="flex justify-center items-center" data-aos="fade-right">
               <ProfileCard
