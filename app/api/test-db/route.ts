@@ -3,6 +3,14 @@ import { testConnection } from '@/lib/db'
 
 export async function GET() {
   try {
+    // Check if MongoDB URI is available
+    if (!process.env.MONGODB_URI) {
+      return NextResponse.json({ 
+        success: false, 
+        message: 'Database connection not configured' 
+      }, { status: 503 })
+    }
+
     const isConnected = await testConnection()
     
     if (isConnected) {

@@ -5,6 +5,14 @@ import { ObjectId } from 'mongodb'
 // GET - Mengambil semua projects atau satu project by id
 export async function GET(request: NextRequest) {
   try {
+    // Check if MongoDB URI is available
+    if (!process.env.MONGODB_URI) {
+      return NextResponse.json({ 
+        success: false, 
+        message: 'Database connection not configured' 
+      }, { status: 503 })
+    }
+
     const collection = await getCollection('projects')
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
@@ -32,6 +40,14 @@ export async function GET(request: NextRequest) {
 // POST - Menambah project baru
 export async function POST(request: NextRequest) {
   try {
+    // Check if MongoDB URI is available
+    if (!process.env.MONGODB_URI) {
+      return NextResponse.json({ 
+        success: false, 
+        message: 'Database connection not configured' 
+      }, { status: 503 })
+    }
+
     const body = await request.json()
     const collection = await getCollection('projects')
     
@@ -58,6 +74,14 @@ export async function POST(request: NextRequest) {
 // PUT - Update project
 export async function PUT(request: NextRequest) {
   try {
+    // Check if MongoDB URI is available
+    if (!process.env.MONGODB_URI) {
+      return NextResponse.json({ 
+        success: false, 
+        message: 'Database connection not configured' 
+      }, { status: 503 })
+    }
+
     const body = await request.json()
     const { id, ...updateData } = body
     
@@ -103,6 +127,14 @@ export async function PUT(request: NextRequest) {
 // DELETE - Delete project
 export async function DELETE(request: NextRequest) {
   try {
+    // Check if MongoDB URI is available
+    if (!process.env.MONGODB_URI) {
+      return NextResponse.json({ 
+        success: false, 
+        message: 'Database connection not configured' 
+      }, { status: 503 })
+    }
+
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
     
