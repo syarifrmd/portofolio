@@ -123,6 +123,20 @@ export default function EditProjectModal({ project, isOpen, onClose, onUpdate }:
     }))
   }
 
+  const handleGithubUrlsChange = (idx: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      githubUrls: prev.githubUrls.map((url, i) => i === idx ? value : url)
+    }))
+  }
+
+  const handleLiveUrlsChange = (idx: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      liveUrls: prev.liveUrls.map((url, i) => i === idx ? value : url)
+    }))
+  }
+
   const addImageField = () => {
     setFormData(prev => ({
       ...prev,
@@ -130,10 +144,38 @@ export default function EditProjectModal({ project, isOpen, onClose, onUpdate }:
     }))
   }
 
+  const addGithubUrlField = () => {
+    setFormData(prev => ({
+      ...prev,
+      githubUrls: [...prev.githubUrls, '']
+    }))
+  }
+
+  const addLiveUrlField = () => {
+    setFormData(prev => ({
+      ...prev,
+      liveUrls: [...prev.liveUrls, '']
+    }))
+  }
+
   const removeImageField = (idx: number) => {
     setFormData(prev => ({
       ...prev,
       images: prev.images.filter((_, i) => i !== idx)
+    }))
+  }
+
+  const removeGithubUrlField = (idx: number) => {
+    setFormData(prev => ({
+      ...prev,
+      githubUrls: prev.githubUrls.filter((_, i) => i !== idx)
+    }))
+  }
+
+  const removeLiveUrlField = (idx: number) => {
+    setFormData(prev => ({
+      ...prev,
+      liveUrls: prev.liveUrls.filter((_, i) => i !== idx)
     }))
   }
 
@@ -276,6 +318,62 @@ export default function EditProjectModal({ project, isOpen, onClose, onUpdate }:
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
               />
+            </div>
+
+            {/* GitHub URLs */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                GitHub Repository URLs
+              </label>
+              {formData.githubUrls.map((url, idx) => (
+                <div key={idx} className="flex items-center space-x-2 mb-2">
+                  <input
+                    type="url"
+                    value={url}
+                    onChange={e => handleGithubUrlsChange(idx, e.target.value)}
+                    placeholder="https://github.com/username/repository"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeGithubUrlField(idx)}
+                    className="text-red-500 hover:text-red-700"
+                  >Remove</button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={addGithubUrlField}
+                className="text-blue-500 hover:text-blue-700"
+              >Add GitHub URL</button>
+            </div>
+
+            {/* Live Demo URLs */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Live Demo URLs
+              </label>
+              {formData.liveUrls.map((url, idx) => (
+                <div key={idx} className="flex items-center space-x-2 mb-2">
+                  <input
+                    type="url"
+                    value={url}
+                    onChange={e => handleLiveUrlsChange(idx, e.target.value)}
+                    placeholder="https://your-demo-site.com"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeLiveUrlField(idx)}
+                    className="text-red-500 hover:text-red-700"
+                  >Remove</button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={addLiveUrlField}
+                className="text-blue-500 hover:text-blue-700"
+              >Add Live Demo URL</button>
             </div>
 
             {/* Images URLs */}
