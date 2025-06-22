@@ -8,34 +8,54 @@ export const dynamic = 'force-dynamic'
 // GET - Mengambil semua projects atau satu project by id
 export async function GET(request: NextRequest) {
   try {
+    console.log('🚀 API Projects route called');
+    console.log('🌍 Environment:', process.env.NODE_ENV);
+    console.log('🔗 MONGODB_URI exists:', !!process.env.MONGODB_URI);
+    console.log('🗄️ MONGODB_DB:', process.env.MONGODB_DB);
+    
     // Check if MongoDB URI is available
     if (!process.env.MONGODB_URI) {
+      console.log('❌ MONGODB_URI not configured');
       return NextResponse.json({ 
         success: false, 
-        message: 'Database connection not configured' 
+        message: 'Database connection not configured',
+        error: 'MONGODB_URI environment variable is missing'
       }, { status: 503 })
     }
 
+    console.log('🔌 Attempting to connect to database...');
     const collection = await getCollection('projects')
+    console.log('✅ Database connection successful');
+    
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
+    
     if (id) {
+      console.log('🔍 Fetching single project with ID:', id);
       const project = await collection.findOne({ _id: new ObjectId(id) })
       if (!project) {
+        console.log('❌ Project not found:', id);
         return NextResponse.json({ success: false, message: 'Project not found' }, { status: 404 })
       }
+      console.log('✅ Single project fetched successfully');
       return NextResponse.json({ success: true, data: project })
     }
+    
+    console.log('📋 Fetching all projects...');
     const projects = await collection.find({}).toArray()
+    console.log('✅ Fetched', projects.length, 'projects');
+    
     return NextResponse.json({ 
       success: true, 
-      data: projects 
+      data: projects,
+      count: projects.length
     })
   } catch (error) {
-    console.error('Error fetching projects:', error)
+    console.error('💥 Error in projects API:', error);
     return NextResponse.json({ 
       success: false, 
-      message: 'Failed to fetch projects' 
+      message: 'Failed to fetch projects',
+      error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 })
   }
 }

@@ -22,6 +22,10 @@ async function getProjects() {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
     const apiUrl = baseUrl ? `${baseUrl}/api/projects` : '/api/projects';
     
+    console.log('🔍 Attempting to fetch from:', apiUrl);
+    console.log('🌍 Environment:', process.env.NODE_ENV);
+    console.log('🔗 Base URL:', baseUrl);
+    
     const res = await fetch(apiUrl, { 
       cache: 'no-store',
       headers: {
@@ -29,24 +33,29 @@ async function getProjects() {
       }
     });
 
+    console.log('📡 Response status:', res.status);
+    console.log('📡 Response ok:', res.ok);
+
     if (!res.ok) {
-      console.error('Failed to fetch projects:', res.status, res.statusText);
-      // Return fallback data if API is not available
+      console.error('❌ Failed to fetch projects:', res.status, res.statusText);
+      console.log('🔄 Using fallback data...');
       return getFallbackProjects();
     }
     
     const data = await res.json();
-    console.log('Fetched projects:', data); // Debug log
+    console.log('📦 Fetched data:', data);
     
     if (data.success && data.data) {
+      console.log('✅ Successfully fetched projects:', data.data.length, 'projects');
       return data.data;
     } else {
-      console.error('API returned error:', data.message);
+      console.error('❌ API returned error:', data.message);
+      console.log('🔄 Using fallback data...');
       return getFallbackProjects();
     }
   } catch (error) {
-    console.error('Error in getProjects:', error);
-    // Return fallback data on error
+    console.error('💥 Error in getProjects:', error);
+    console.log('🔄 Using fallback data due to error...');
     return getFallbackProjects();
   }
 }
