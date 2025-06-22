@@ -19,21 +19,81 @@ import { TypeAnimation } from 'react-type-animation';
 async function getProjects() {
   try {
     // Use relative URL for client-side fetching
-    const res = await fetch('/api/projects', { 
-      cache: 'no-store' 
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+    const apiUrl = baseUrl ? `${baseUrl}/api/projects` : '/api/projects';
+    
+    const res = await fetch(apiUrl, { 
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+      }
     });
 
     if (!res.ok) {
       console.error('Failed to fetch projects:', res.status, res.statusText);
-      return []; // Return empty array on failure
+      // Return fallback data if API is not available
+      return getFallbackProjects();
     }
+    
     const data = await res.json();
     console.log('Fetched projects:', data); // Debug log
-    return data.data || []; // Ensure data.data exists
+    
+    if (data.success && data.data) {
+      return data.data;
+    } else {
+      console.error('API returned error:', data.message);
+      return getFallbackProjects();
+    }
   } catch (error) {
     console.error('Error in getProjects:', error);
-    return []; // Return empty array on error
+    // Return fallback data on error
+    return getFallbackProjects();
   }
+}
+
+// Fallback projects data when API is not available
+function getFallbackProjects() {
+  return [
+    {
+      _id: 'fallback-1',
+      title: 'Portfolio Website',
+      description: 'Personal portfolio website built with Next.js, featuring modern design and responsive layout.',
+      category: 'Web Development',
+      status: 'Completed',
+      technologies: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS'],
+      images: ['/assets/images/hero.jpg'],
+      githubUrl: '#',
+      liveUrl: '#',
+      startDate: '2024-01-01',
+      endDate: '2024-01-15'
+    },
+    {
+      _id: 'fallback-2',
+      title: 'E-commerce Platform',
+      description: 'Full-stack e-commerce platform with payment integration and admin dashboard.',
+      category: 'Web Development',
+      status: 'In Progress',
+      technologies: ['React', 'Node.js', 'MongoDB', 'Stripe'],
+      images: ['/assets/images/hero.jpg'],
+      githubUrl: '#',
+      liveUrl: '#',
+      startDate: '2024-02-01',
+      endDate: null
+    },
+    {
+      _id: 'fallback-3',
+      title: 'Mobile App Design',
+      description: 'UI/UX design for a mobile application with modern interface and user experience.',
+      category: 'UI/UX Design',
+      status: 'Completed',
+      technologies: ['Figma', 'Adobe XD', 'Prototyping'],
+      images: ['/assets/images/hero.jpg'],
+      githubUrl: '#',
+      liveUrl: '#',
+      startDate: '2023-12-01',
+      endDate: '2023-12-20'
+    }
+  ];
 }
 
 const roles = [

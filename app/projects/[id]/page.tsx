@@ -6,12 +6,31 @@ import { ArrowLeft, Github, ExternalLink, Calendar, User, Tag, ChevronLeft, Chev
 import { useEffect, useState } from 'react';
 
 async function getProject(id: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-  const res = await fetch(`${baseUrl}/api/projects?id=${id}`, { cache: 'no-store' });
-  if (!res.ok) return null;
-  const data = await res.json();
-  if (data.success && data.data) return data.data;
-  return null;
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+    const apiUrl = baseUrl ? `${baseUrl}/api/projects?id=${id}` : `/api/projects?id=${id}`;
+    
+    const res = await fetch(apiUrl, { 
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    if (!res.ok) {
+      console.error('Failed to fetch project:', res.status, res.statusText);
+      return null;
+    }
+    
+    const data = await res.json();
+    if (data.success && data.data) return data.data;
+    
+    console.error('API returned error:', data.message);
+    return null;
+  } catch (error) {
+    console.error('Error in getProject:', error);
+    return null;
+  }
 }
 
 export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
