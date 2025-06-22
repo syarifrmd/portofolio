@@ -14,14 +14,20 @@ async function getProject(id: string) {
   return null;
 }
 
-export default function ProjectDetailPage({ params }: { params: { id: string } }) {
+export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [project, setProject] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [projectId, setProjectId] = useState<string>('');
 
   useEffect(() => {
     const fetchProject = async () => {
-      const projectData = await getProject(params.id);
+      // Await the params to get the id
+      const resolvedParams = await params;
+      const id = resolvedParams.id;
+      setProjectId(id);
+      
+      const projectData = await getProject(id);
       if (!projectData) {
         notFound();
       }
@@ -29,7 +35,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
       setLoading(false);
     };
     fetchProject();
-  }, [params.id]);
+  }, [params]);
 
   const nextImage = () => {
     if (project?.images && project.images.length > 0) {
