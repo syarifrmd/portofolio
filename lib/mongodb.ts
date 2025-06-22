@@ -1,10 +1,11 @@
 import { MongoClient } from 'mongodb'
 
+// Check if MongoDB URI is available
 if (!process.env.MONGODB_URI) {
-  throw new Error('Invalid/Missing environment variable: "MONGODB_URI"')
+  console.warn('MONGODB_URI is not set. Database functionality will be limited.')
 }
 
-const uri = process.env.MONGODB_URI
+const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017'
 const options = {}
 
 let client
