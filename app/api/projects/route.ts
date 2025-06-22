@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/db'
 import { ObjectId } from 'mongodb'
 
+// Force dynamic rendering to prevent build-time evaluation
+export const dynamic = 'force-dynamic'
+
 // GET - Mengambil semua projects atau satu project by id
 export async function GET(request: NextRequest) {
   try {

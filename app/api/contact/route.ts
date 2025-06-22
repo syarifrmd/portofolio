@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 
+// Force dynamic rendering to prevent build-time evaluation
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: Request) {
   try {
     const { name, email, message } = await request.json();
