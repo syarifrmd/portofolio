@@ -4,6 +4,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, Github, ExternalLink, Calendar, User, Tag, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
 
 async function getProject(id: string) {
   try {
@@ -38,6 +40,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [projectId, setProjectId] = useState<string>('');
+  const [openLightbox, setOpenLightbox] = useState(false);
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -130,13 +133,16 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             {/* Hero Section with Image Carousel */}
             <div className="relative p-8 pb-0">
               {project.images && project.images.length > 0 ? (
-                <div className="relative h-80 mb-8 rounded-2xl overflow-hidden">
+                <div 
+                  className="relative h-80 mb-8 rounded-2xl overflow-hidden group cursor-pointer"
+                  onClick={() => setOpenLightbox(true)}
+                >
                   {/* Main Image */}
                   <Image
                     src={project.images[currentImageIndex]}
                     alt={`${project.title} image ${currentImageIndex + 1}`}
                     fill
-                    className="object-cover transition-all duration-500"
+                    className="object-cover transition-all duration-500 group-hover:scale-105"
                     unoptimized
                   />
                   
@@ -316,6 +322,17 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           </div>
         </div>
       </div>
+
+      <Lightbox
+        open={openLightbox}
+        close={() => setOpenLightbox(false)}
+        slides={project?.images?.map((img: string) => ({ src: img })) || []}
+        index={currentImageIndex}
+        on={{
+          view: ({ index: currentIndex }) => setCurrentImageIndex(currentIndex),
+        }}
+        styles={{ container: { backgroundColor: "rgba(0, 0, 0, .9)" } }}
+      />
 
       <style jsx>{`
         .perspective-1000 {

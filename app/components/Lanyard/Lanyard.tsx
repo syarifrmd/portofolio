@@ -39,8 +39,19 @@ export default function Lanyard({
   fov = 20,
   transparent = true,
 }: LanyardProps) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   return (
-    <div className="relative z-0 w-full h-screen flex justify-center items-center transform scale-100 origin-center">
+    <div className={`relative z-0 w-full flex justify-center items-center transform scale-100 origin-center ${isMobile ? 'h-full' : 'h-screen'}`}>
       <Canvas
         camera={{ position, fov }}
         gl={{ alpha: transparent }}
@@ -50,7 +61,7 @@ export default function Lanyard({
       >
         <ambientLight intensity={Math.PI} />
         <Physics gravity={gravity} timeStep={1 / 60}>
-          <Band />
+          <Band isSmall={isMobile} />
         </Physics>
         <Environment blur={0.75}>
           <Lightformer
@@ -90,9 +101,10 @@ export default function Lanyard({
 interface BandProps {
   maxSpeed?: number;
   minSpeed?: number;
+  isSmall?: boolean;
 }
 
-function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
+function Band({ maxSpeed = 50, minSpeed = 0, isSmall = false }: BandProps) {
   // Using "any" for refs since the exact types depend on Rapier's internals
   const band = useRef<any>(null);
   const fixed = useRef<any>(null);
@@ -127,22 +139,6 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
   );
   const [dragged, drag] = useState<false | THREE.Vector3>(false);
   const [hovered, hover] = useState(false);
-
-  const [isSmall, setIsSmall] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      return window.innerWidth < 1024;
-    }
-    return false;
-  });
-
-  useEffect(() => {
-    const handleResize = (): void => {
-      setIsSmall(window.innerWidth < 1024);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return (): void => window.removeEventListener("resize", handleResize);
-  }, []);
 
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
@@ -246,7 +242,7 @@ function Band({ maxSpeed = 50, minSpeed = 0 }: BandProps) {
         >
           <CuboidCollider args={[0.8, 1.125, 0.01]} />
           <group
-            scale={2.25}
+            scale={isSmall ? 1.5 : 2.25}
             position={[0, -1.2, -0.05]}
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
