@@ -11,6 +11,8 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import Aurora from './components/Aurora/Aurora';
 import ScrollVelocity from './components/ScrollVelocity/ScrollVelocity';
 import ProjectCard from './components/ProjectCard';
+import ProfileCard from "./components/ProfileCard/ProfileCard";
+import ContactForm from "./components/ContactForm";
 
 // This function will fetch data on the server
 async function getProjects() {
@@ -36,6 +38,7 @@ async function getProjects() {
 export default function Home() {
   const [projects, setProjects] = useState([]);
   const [isVisible, setIsVisible] = useState(false);
+  const [showAllProjects, setShowAllProjects] = useState(false);
   const { scrollYProgress } = useScroll();
   
   // Transform values for text (left side)
@@ -80,7 +83,9 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
 
-  
+  // Get projects to display (3 latest initially, or all if showAllProjects is true)
+  const displayedProjects = showAllProjects ? projects : projects.slice(0, 3);
+  const hasMoreProjects = projects.length > 3;
 
   return (
     <div className="bg-slate-950 text-white overflow-x-hidden min-h-screen relative">
@@ -348,26 +353,103 @@ Bagi saya, teknologi bukan sekadar alat, tapi ruang untuk menuangkan ide, memeca
             animate="animate"
             transition={{ staggerChildren: 0.2 }}
           >
-            {projects && projects.length > 0 ? (
-              projects.map((project: any, index: number) => (
+            {displayedProjects && displayedProjects.length > 0 ? (
+              displayedProjects.map((project: any, index: number) => (
                 <ProjectCard key={project._id || index} project={project} />
               ))
             ) : (
               <p className="text-center col-span-full">No projects found. Add one in the admin panel!</p>
             )}
           </motion.div>
+
+          {/* Show More / Show Less Button */}
+          {hasMoreProjects && (
+            <div className="mt-16 text-center">
+              <button
+                onClick={() => setShowAllProjects(!showAllProjects)}
+                className="inline-flex items-center gap-2 bg-transparent text-blue-400 hover:text-blue-300 font-medium transition-colors duration-300 group text-lg"
+              >
+                {showAllProjects ? (
+                  <>
+                    <span>Show Less</span>
+                    <svg
+                      className="w-5 h-5 transition-transform group-hover:-translate-y-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 15l7-7 7 7"
+                      ></path>
+                    </svg>
+                  </>
+                ) : (
+                  <>
+                    <span>Show More</span>
+                    <svg
+                      className="w-5 h-5 transition-transform group-hover:translate-y-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      ></path>
+                    </svg>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Contact Section Placeholder */}
-      <section id="contact" className="text-center py-20 lg:py-32 bg-slate-900">
-         <h2 className="text-3xl font-bold text-gradient">Contact Me</h2>
-         <p className="mt-4 text-neutral-300">syarif.romadlon@gmail.com</p>
-      </section>
+      {/* Contact Section with Grid Layout */}
+      <section id="contact" className="py-20 lg:py-32">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gradient text-blue-400">Get in Touch</h2>
+            <div className="w-24 h-1.5 bg-gradient-to-r from-sky-500 to-cyan-400 rounded-lg mx-auto mt-4" />
+            <p className="text-neutral-300 text-lg mt-4 max-w-2xl mx-auto">
+              Have a project in mind or just want to say hi? Feel free to reach out.
+            </p>
+          </div>
 
+          <div className="grid lg:grid-cols-2 gap-12 items-start">
+            {/* Left Column: Profile Card */}
+            <div className="flex justify-center items-center" data-aos="fade-right">
+              <ProfileCard
+                name="Syarif Romadloni"
+                title="Software Engineer"
+                handle="syarif_r.m.d"
+                status="Online"
+                contactText="Hubungi saya"
+                avatarUrl="/assets/images/contact.png"
+                showUserInfo={true}
+                enableTilt={true}
+                onContactClick={() => window.location.href = 'mailto:syarifroma@gmail.com'}
+              />
+            </div>
+
+            {/* Right Column: Contact Form */}
+            <div className="bg-slate-900/50 p-8 rounded-2xl border border-slate-800" data-aos="fade-left" data-aos-delay="200">
+              <ContactForm />
+            </div>
+          </div>
+        </div>
+      </section>
+      
       {/* Footer */}
       <footer className="text-center py-8 border-t border-slate-800">
-        <p className="text-neutral-400">&copy; {new Date().getFullYear()} Syarif Romadloni. All rights reserved.</p>
+        <p className="text-neutral-400">&copy; {new Date().getFullYear()} Riif Creative. All rights reserved.</p>
       </footer>
     </div>
   );

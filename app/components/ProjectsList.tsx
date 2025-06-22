@@ -11,9 +11,10 @@ interface Project {
   description: string
   techStack: string[]
   status: 'Completed' | 'In Progress' | 'Planned'
-  githubUrl?: string
-  liveUrl?: string
-  image: string
+  githubUrls?: string[]
+  liveUrls?: string[]
+  images?: string[]
+  startDate?: string
   createdAt: string
   updatedAt: string
 }
@@ -191,10 +192,11 @@ export default function ProjectsList() {
               </div>
             )}
 
-            {project.image && project.image.trim() !== "" ? (
+            {/* Image Preview (first image) */}
+            {project.images && project.images.length > 0 && project.images[0].trim() !== "" ? (
               <div className="relative w-full h-48 bg-gray-100 dark:bg-gray-700">
-                <Image 
-                  src={project.image} 
+                <Image
+                  src={project.images[0]}
                   alt={project.title}
                   fill
                   className="object-cover"
@@ -243,26 +245,28 @@ export default function ProjectsList() {
                 ))}
               </div>
               <div className="flex gap-2">
-                {project.githubUrl && (
+                {project.githubUrls && project.githubUrls.map((url, index) => (
                   <a 
-                    href={project.githubUrl}
+                    key={index}
+                    href={url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700 transition-colors text-sm"
                   >
                     GitHub
                   </a>
-                )}
-                {project.liveUrl && (
+                ))}
+                {project.liveUrls && project.liveUrls.map((url, index) => (
                   <a 
-                    href={project.liveUrl}
+                    key={index}
+                    href={url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm"
                   >
                     Live Demo
                   </a>
-                )}
+                ))}
               </div>
             </div>
           </div>

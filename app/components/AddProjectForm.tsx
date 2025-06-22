@@ -9,9 +9,10 @@ interface ProjectForm {
   description: string;
   techStack: string; // Will be comma-separated string
   status: 'Completed' | 'In Progress' | 'Planned';
-  githubUrl: string;
-  liveUrl: string;
-  image: string; // Changed from imageUrl to image to match card
+  startDate: string;
+  githubUrls: string[];
+  liveUrls: string[];
+  images: string[];
 }
 
 export default function AddProjectForm() {
@@ -21,9 +22,10 @@ export default function AddProjectForm() {
     description: '',
     techStack: '',
     status: 'Completed',
-    githubUrl: '',
-    liveUrl: '',
-    image: ''
+    startDate: '',
+    githubUrls: [''],
+    liveUrls: [''],
+    images: ['']
   })
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
@@ -36,7 +38,10 @@ export default function AddProjectForm() {
     try {
       const projectData = {
         ...formData,
-        techStack: formData.techStack.split(',').map(tech => tech.trim()).filter(tech => tech)
+        techStack: formData.techStack.split(',').map(tech => tech.trim()).filter(tech => tech),
+        githubUrls: formData.githubUrls.filter(url => url.trim() !== ''),
+        liveUrls: formData.liveUrls.filter(url => url.trim() !== ''),
+        images: formData.images.filter(url => url.trim() !== '')
       }
 
       const response = await fetch('/api/projects', {
@@ -58,9 +63,10 @@ export default function AddProjectForm() {
           description: '',
           techStack: '',
           status: 'Completed',
-          githubUrl: '',
-          liveUrl: '',
-          image: ''
+          startDate: '',
+          githubUrls: [''],
+          liveUrls: [''],
+          images: ['']
         })
       } else {
         setMessage({ type: 'error', text: data.message || 'Failed to add project' })
@@ -77,6 +83,48 @@ export default function AddProjectForm() {
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }))
+  }
+
+  const handleUrlChange = (type: 'githubUrls' | 'liveUrls', idx: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [type]: prev[type].map((url, i) => i === idx ? value : url)
+    }))
+  }
+
+  const addUrlField = (type: 'githubUrls' | 'liveUrls') => {
+    setFormData(prev => ({
+      ...prev,
+      [type]: [...prev[type], '']
+    }))
+  }
+
+  const removeUrlField = (type: 'githubUrls' | 'liveUrls', idx: number) => {
+    setFormData(prev => ({
+      ...prev,
+      [type]: prev[type].filter((_, i) => i !== idx)
+    }))
+  }
+
+  const handleImagesChange = (idx: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.map((url, i) => i === idx ? value : url)
+    }))
+  }
+
+  const addImageField = () => {
+    setFormData(prev => ({
+      ...prev,
+      images: [...prev.images, '']
+    }))
+  }
+
+  const removeImageField = (idx: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== idx)
     }))
   }
 
@@ -178,68 +226,130 @@ export default function AddProjectForm() {
           </select>
         </div>
 
-        {/* GitHub URL */}
+        {/* Start Date */}
         <div>
-          <label htmlFor="githubUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            GitHub URL
+          <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Start Date
           </label>
           <input
-            type="url"
-            id="githubUrl"
-            name="githubUrl"
-            value={formData.githubUrl}
+            type="date"
+            id="startDate"
+            name="startDate"
+            value={formData.startDate}
             onChange={handleChange}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
           />
         </div>
 
-        {/* Live URL */}
+        {/* GitHub URLs */}
         <div>
-          <label htmlFor="liveUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Live Demo URL
+          <label htmlFor="githubUrls" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            GitHub URLs
           </label>
-          <input
-            type="url"
-            id="liveUrl"
-            name="liveUrl"
-            value={formData.liveUrl}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-          />
+          {formData.githubUrls.map((url, idx) => (
+            <div key={idx} className="flex items-center space-x-2">
+              <input
+                type="url"
+                id={`githubUrls-${idx}`}
+                name={`githubUrls-${idx}`}
+                value={url}
+                onChange={(e) => handleUrlChange('githubUrls', idx, e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              />
+              <button
+                type="button"
+                onClick={() => removeUrlField('githubUrls', idx)}
+                className="text-red-500 hover:text-red-700"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => addUrlField('githubUrls')}
+            className="text-blue-500 hover:text-blue-700"
+          >
+            Add URL
+          </button>
         </div>
 
-        {/* Image URL */}
+        {/* Live URLs */}
         <div>
-          <label htmlFor="image" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Image URL *
+          <label htmlFor="liveUrls" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Live Demo URLs
           </label>
-          <input
-            type="url"
-            id="image"
-            name="image"
-            value={formData.image}
-            onChange={handleChange}
-            required
-            placeholder="https://images.unsplash.com/photo-..."
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-          />
+          {formData.liveUrls.map((url, idx) => (
+            <div key={idx} className="flex items-center space-x-2">
+              <input
+                type="url"
+                id={`liveUrls-${idx}`}
+                name={`liveUrls-${idx}`}
+                value={url}
+                onChange={(e) => handleUrlChange('liveUrls', idx, e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              />
+              <button
+                type="button"
+                onClick={() => removeUrlField('liveUrls', idx)}
+                className="text-red-500 hover:text-red-700"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => addUrlField('liveUrls')}
+            className="text-blue-500 hover:text-blue-700"
+          >
+            Add URL
+          </button>
+        </div>
+
+        {/* Images URLs */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Image URLs
+          </label>
+          {formData.images.map((url, idx) => (
+            <div key={idx} className="flex items-center space-x-2 mb-2">
+              <input
+                type="url"
+                value={url}
+                onChange={e => handleImagesChange(idx, e.target.value)}
+                placeholder="https://images.unsplash.com/photo-..."
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              />
+              <button
+                type="button"
+                onClick={() => removeImageField(idx)}
+                className="text-red-500 hover:text-red-700"
+              >Remove</button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addImageField}
+            className="text-blue-500 hover:text-blue-700"
+          >Add Image</button>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             Gunakan URL gambar dari Unsplash, Imgur, atau hosting gambar lainnya
           </p>
-          
-          {/* Image Preview */}
-          {formData.image && (
-            <div className="mt-3">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Preview:</p>
-              <div className="relative w-full h-32 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
-                <Image
-                  src={formData.image}
-                  alt="Preview"
-                  fill
-                  className="object-cover"
-                  unoptimized
-                />
-              </div>
+          {/* Image Previews */}
+          {formData.images.filter(url => url.trim() !== '').length > 0 && (
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              {formData.images.filter(url => url.trim() !== '').map((url, idx) => (
+                <div key={idx} className="relative w-full h-24 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+                  <Image
+                    src={url}
+                    alt={`Preview ${idx+1}`}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
+              ))}
             </div>
           )}
         </div>

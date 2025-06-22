@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { motion, useMotionValue, useSpring, useTransform, Variants } from "framer-motion";
 import React from "react";
+import Link from 'next/link'
 
 interface Project {
   _id: string;
@@ -11,9 +12,9 @@ interface Project {
   description: string;
   techStack: string[];
   status: 'Completed' | 'In Progress' | 'Planned';
-  githubUrl?: string;
-  liveUrl?: string;
-  image: string;
+  githubUrls?: string[];
+  liveUrls?: string[];
+  images?: string[];
 }
 
 const ProjectCard = ({ project }: { project: Project }) => {
@@ -53,59 +54,61 @@ const ProjectCard = ({ project }: { project: Project }) => {
   };
 
   return (
-    <motion.div
-      className="project-card-container"
-      style={{ perspective: "1000px" }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      variants={cardVariants}
-    >
+    <Link href={`/projects/${project._id}`} className="block focus:outline-none">
       <motion.div
-        className="project-card"
-        style={{
-          rotateX,
-          rotateY,
-          transformStyle: "preserve-3d",
-        }}
+        className="project-card-container"
+        style={{ perspective: "1000px" }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        variants={cardVariants}
       >
-        {/* Image Background */}
-        <div style={{ transform: "translateZ(20px)" }} className="absolute inset-0">
-          {project.image && project.image.trim() !== "" ? (
-            <Image
-              src={project.image}
-              alt={project.title}
-              fill
-              className="object-cover rounded-xl"
-              unoptimized
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl flex items-center justify-center">
-              <span className="text-white text-lg font-medium">No Image</span>
-            </div>
-          )}
-          {/* Dark Overlay */}
-          <div className="absolute inset-0 bg-black/20 rounded-xl" />
-        </div>
-
-        {/* Text Content */}
-        <div style={{ transform: "translateZ(50px)" }} className="absolute bottom-4 left-4 text-white">
-          <p className="text-sm font-light text-white">{project.category}</p>
-          <h3 className="text-xl font-bold">{project.title}</h3>
-        </div>
-
-        {/* Technologies on Hover */}
-        <div style={{ transform: "translateZ(60px)" }} className="project-card-tech">
-          <h4 className="text-lg font-semibold mb-2">Tech Stack:</h4>
-          <div className="flex flex-wrap gap-2 justify-center px-4">
-            {(project.techStack || []).map((tech: string) => (
-              <span key={tech} className="tech-badge">
-                {tech}
-              </span>
-            ))}
+        <motion.div
+          className="project-card"
+          style={{
+            rotateX,
+            rotateY,
+            transformStyle: "preserve-3d",
+          }}
+        >
+          {/* Image Background */}
+          <div style={{ transform: "translateZ(20px)" }} className="absolute inset-0">
+            {project.images && project.images.length > 0 && project.images[0].trim() !== "" ? (
+              <Image
+                src={project.images[0]}
+                alt={project.title}
+                fill
+                className="object-cover rounded-xl"
+                unoptimized
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl flex items-center justify-center">
+                <span className="text-white text-lg font-medium">No Image</span>
+              </div>
+            )}
+            {/* Dark Overlay */}
+            <div className="absolute inset-0 bg-black/20 rounded-xl" />
           </div>
-        </div>
+
+          {/* Text Content */}
+          <div style={{ transform: "translateZ(50px)" }} className="absolute bottom-4 left-4 text-white">
+            <p className="text-sm font-light text-white">{project.category}</p>
+            <h3 className="text-xl font-bold">{project.title}</h3>
+          </div>
+
+          {/* Technologies on Hover */}
+          <div style={{ transform: "translateZ(60px)" }} className="project-card-tech">
+            <h4 className="text-lg font-semibold mb-2">Tech Stack:</h4>
+            <div className="flex flex-wrap gap-2 justify-center px-4">
+              {(project.techStack || []).map((tech: string) => (
+                <span key={tech} className="tech-badge">
+                  {tech}
+                </span>
+              ))}
+            </div>
+          </div>
+        </motion.div>
       </motion.div>
-    </motion.div>
+    </Link>
   );
 };
 

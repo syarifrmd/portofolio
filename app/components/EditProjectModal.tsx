@@ -10,9 +10,10 @@ interface Project {
   description: string
   techStack: string[]
   status: 'Completed' | 'In Progress' | 'Planned'
-  githubUrl?: string
-  liveUrl?: string
-  image: string
+  githubUrls?: string[]
+  liveUrls?: string[]
+  images?: string[]
+  startDate?: string
   createdAt: string
   updatedAt: string
 }
@@ -31,9 +32,10 @@ export default function EditProjectModal({ project, isOpen, onClose, onUpdate }:
     description: '',
     techStack: '',
     status: 'Completed' as 'Completed' | 'In Progress' | 'Planned',
-    githubUrl: '',
-    liveUrl: '',
-    image: ''
+    githubUrls: [''],
+    liveUrls: [''],
+    images: [''],
+    startDate: ''
   })
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
@@ -47,9 +49,10 @@ export default function EditProjectModal({ project, isOpen, onClose, onUpdate }:
         description: project.description,
         techStack: project.techStack.join(', '),
         status: project.status,
-        githubUrl: project.githubUrl || '',
-        liveUrl: project.liveUrl || '',
-        image: project.image
+        githubUrls: project.githubUrls && project.githubUrls.length > 0 ? project.githubUrls : [''],
+        liveUrls: project.liveUrls && project.liveUrls.length > 0 ? project.liveUrls : [''],
+        images: project.images && project.images.length > 0 ? project.images : [''],
+        startDate: project.startDate || ''
       })
       setMessage(null)
     }
@@ -110,6 +113,27 @@ export default function EditProjectModal({ project, isOpen, onClose, onUpdate }:
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }))
+  }
+
+  const handleImagesChange = (idx: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.map((url, i) => i === idx ? value : url)
+    }))
+  }
+
+  const addImageField = () => {
+    setFormData(prev => ({
+      ...prev,
+      images: [...prev.images, '']
+    }))
+  }
+
+  const removeImageField = (idx: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== idx)
     }))
   }
 
@@ -239,68 +263,64 @@ export default function EditProjectModal({ project, isOpen, onClose, onUpdate }:
               </select>
             </div>
 
-            {/* GitHub URL */}
+            {/* Start Date */}
             <div>
-              <label htmlFor="githubUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                GitHub URL
+              <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Start Date
               </label>
               <input
-                type="url"
-                id="githubUrl"
-                name="githubUrl"
-                value={formData.githubUrl}
+                type="date"
+                id="startDate"
+                name="startDate"
+                value={formData.startDate}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
               />
             </div>
 
-            {/* Live URL */}
+            {/* Images URLs */}
             <div>
-              <label htmlFor="liveUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Live Demo URL
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Image URLs
               </label>
-              <input
-                type="url"
-                id="liveUrl"
-                name="liveUrl"
-                value={formData.liveUrl}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-              />
-            </div>
-
-            {/* Image URL */}
-            <div>
-              <label htmlFor="image" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Image URL *
-              </label>
-              <input
-                type="url"
-                id="image"
-                name="image"
-                value={formData.image}
-                onChange={handleChange}
-                required
-                placeholder="https://images.unsplash.com/photo-..."
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-              />
+              {formData.images.map((url, idx) => (
+                <div key={idx} className="flex items-center space-x-2 mb-2">
+                  <input
+                    type="url"
+                    value={url}
+                    onChange={e => handleImagesChange(idx, e.target.value)}
+                    placeholder="https://images.unsplash.com/photo-..."
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImageField(idx)}
+                    className="text-red-500 hover:text-red-700"
+                  >Remove</button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={addImageField}
+                className="text-blue-500 hover:text-blue-700"
+              >Add Image</button>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Gunakan URL gambar dari Unsplash, Imgur, atau hosting gambar lainnya
               </p>
-              
-              {/* Image Preview */}
-              {formData.image && (
-                <div className="mt-3">
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Preview:</p>
-                  <div className="relative w-full h-32 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
-                    <Image
-                      src={formData.image}
-                      alt="Preview"
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
-                  </div>
+              {/* Image Previews */}
+              {formData.images.filter(url => url.trim() !== '').length > 0 && (
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  {formData.images.filter(url => url.trim() !== '').map((url, idx) => (
+                    <div key={idx} className="relative w-full h-24 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+                      <Image
+                        src={url}
+                        alt={`Preview ${idx+1}`}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

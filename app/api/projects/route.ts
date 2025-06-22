@@ -2,12 +2,20 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getCollection } from '@/lib/db'
 import { ObjectId } from 'mongodb'
 
-// GET - Mengambil semua projects
-export async function GET() {
+// GET - Mengambil semua projects atau satu project by id
+export async function GET(request: NextRequest) {
   try {
     const collection = await getCollection('projects')
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+    if (id) {
+      const project = await collection.findOne({ _id: new ObjectId(id) })
+      if (!project) {
+        return NextResponse.json({ success: false, message: 'Project not found' }, { status: 404 })
+      }
+      return NextResponse.json({ success: true, data: project })
+    }
     const projects = await collection.find({}).toArray()
-    
     return NextResponse.json({ 
       success: true, 
       data: projects 
