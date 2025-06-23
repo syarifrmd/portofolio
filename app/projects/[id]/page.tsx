@@ -2,7 +2,7 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Github, ExternalLink, Calendar, User, Tag, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Github, ExternalLink, Calendar, User, Tag, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
@@ -287,7 +287,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-4 mb-8">
                 {project.githubUrls && project.githubUrls.map((url: string, idx: number) => (
                   <a 
                     key={idx} 
@@ -318,6 +318,68 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                   </a>
                 ))}
               </div>
+
+              {/* Videos Section */}
+              {project.videos && project.videos.length > 0 && (
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2 text-blue-400">
+                    <Play className="w-5 h-5" />
+                    Project Videos
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {project.videos.map((videoUrl: string, idx: number) => {
+                      // Extract YouTube video ID
+                      const youtubeMatch = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+                      const vimeoMatch = videoUrl.match(/vimeo\.com\/(\d+)/);
+                      
+                      if (youtubeMatch) {
+                        const videoId = youtubeMatch[1];
+                        return (
+                          <div key={idx} className="relative aspect-video rounded-xl overflow-hidden bg-slate-800">
+                            <iframe
+                              src={`https://www.youtube.com/embed/${videoId}`}
+                              title={`${project.title} Video ${idx + 1}`}
+                              className="w-full h-full"
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          </div>
+                        );
+                      } else if (vimeoMatch) {
+                        const videoId = vimeoMatch[1];
+                        return (
+                          <div key={idx} className="relative aspect-video rounded-xl overflow-hidden bg-slate-800">
+                            <iframe
+                              src={`https://player.vimeo.com/video/${videoId}`}
+                              title={`${project.title} Video ${idx + 1}`}
+                              className="w-full h-full"
+                              frameBorder="0"
+                              allow="autoplay; fullscreen; picture-in-picture"
+                              allowFullScreen
+                            />
+                          </div>
+                        );
+                      } else {
+                        // For other video platforms, show as a link
+                        return (
+                          <div key={idx} className="relative aspect-video rounded-xl overflow-hidden bg-slate-800 flex items-center justify-center">
+                            <a
+                              href={videoUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 px-6 py-3 bg-slate-700/50 hover:bg-slate-600/50 backdrop-blur-sm border border-slate-600/50 hover:border-slate-500/50 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-slate-500/20 group"
+                            >
+                              <Play className="w-4 h-4 transition-transform group-hover:scale-110" />
+                              <span className="font-semibold">Watch Video {idx + 1}</span>
+                            </a>
+                          </div>
+                        );
+                      }
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

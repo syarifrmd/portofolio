@@ -13,6 +13,7 @@ interface Project {
   githubUrls?: string[]
   liveUrls?: string[]
   images?: string[]
+  videos?: string[]
   startDate?: string
   createdAt: string
   updatedAt: string
@@ -35,6 +36,7 @@ export default function EditProjectModal({ project, isOpen, onClose, onUpdate }:
     githubUrls: [''],
     liveUrls: [''],
     images: [''],
+    videos: [''],
     startDate: ''
   })
   const [loading, setLoading] = useState(false)
@@ -52,6 +54,7 @@ export default function EditProjectModal({ project, isOpen, onClose, onUpdate }:
         githubUrls: project.githubUrls && project.githubUrls.length > 0 ? project.githubUrls : [''],
         liveUrls: project.liveUrls && project.liveUrls.length > 0 ? project.liveUrls : [''],
         images: project.images && project.images.length > 0 ? project.images : [''],
+        videos: project.videos && project.videos.length > 0 ? project.videos : [''],
         startDate: project.startDate || ''
       })
       setMessage(null)
@@ -123,6 +126,13 @@ export default function EditProjectModal({ project, isOpen, onClose, onUpdate }:
     }))
   }
 
+  const handleVideosChange = (idx: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      videos: prev.videos.map((url, i) => i === idx ? value : url)
+    }))
+  }
+
   const handleGithubUrlsChange = (idx: number, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -144,6 +154,13 @@ export default function EditProjectModal({ project, isOpen, onClose, onUpdate }:
     }))
   }
 
+  const addVideoField = () => {
+    setFormData(prev => ({
+      ...prev,
+      videos: [...prev.videos, '']
+    }))
+  }
+
   const addGithubUrlField = () => {
     setFormData(prev => ({
       ...prev,
@@ -162,6 +179,13 @@ export default function EditProjectModal({ project, isOpen, onClose, onUpdate }:
     setFormData(prev => ({
       ...prev,
       images: prev.images.filter((_, i) => i !== idx)
+    }))
+  }
+
+  const removeVideoField = (idx: number) => {
+    setFormData(prev => ({
+      ...prev,
+      videos: prev.videos.filter((_, i) => i !== idx)
     }))
   }
 
@@ -421,6 +445,37 @@ export default function EditProjectModal({ project, isOpen, onClose, onUpdate }:
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* Video URLs */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Video URLs
+              </label>
+              {formData.videos.map((url, idx) => (
+                <div key={idx} className="flex items-center space-x-2 mb-2">
+                  <input
+                    type="url"
+                    value={url}
+                    onChange={e => handleVideosChange(idx, e.target.value)}
+                    placeholder="https://www.youtube.com/watch?v=... atau https://vimeo.com/..."
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeVideoField(idx)}
+                    className="text-red-500 hover:text-red-700"
+                  >Remove</button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={addVideoField}
+                className="text-blue-500 hover:text-blue-700"
+              >Add Video</button>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Gunakan URL video dari YouTube, Vimeo, atau platform video lainnya
+              </p>
             </div>
 
             {/* Action Buttons */}

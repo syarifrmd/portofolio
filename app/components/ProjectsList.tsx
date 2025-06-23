@@ -14,6 +14,7 @@ interface Project {
   githubUrls?: string[]
   liveUrls?: string[]
   images?: string[]
+  videos?: string[]
   startDate?: string
   createdAt: string
   updatedAt: string

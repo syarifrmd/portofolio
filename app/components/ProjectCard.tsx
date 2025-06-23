@@ -15,6 +15,7 @@ interface Project {
   githubUrls?: string[];
   liveUrls?: string[];
   images?: string[];
+  videos?: string[];
 }
 
 const ProjectCard = ({ project }: { project: Project }) => {

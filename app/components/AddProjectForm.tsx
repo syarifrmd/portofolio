@@ -13,6 +13,7 @@ interface ProjectForm {
   githubUrls: string[];
   liveUrls: string[];
   images: string[];
+  videos: string[];
 }
 
 export default function AddProjectForm() {
@@ -25,7 +26,8 @@ export default function AddProjectForm() {
     startDate: '',
     githubUrls: [''],
     liveUrls: [''],
-    images: ['']
+    images: [''],
+    videos: ['']
   })
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
@@ -41,7 +43,8 @@ export default function AddProjectForm() {
         techStack: formData.techStack.split(',').map(tech => tech.trim()).filter(tech => tech),
         githubUrls: formData.githubUrls.filter(url => url.trim() !== ''),
         liveUrls: formData.liveUrls.filter(url => url.trim() !== ''),
-        images: formData.images.filter(url => url.trim() !== '')
+        images: formData.images.filter(url => url.trim() !== ''),
+        videos: formData.videos.filter(url => url.trim() !== '')
       }
 
       const response = await fetch('/api/projects', {
@@ -66,7 +69,8 @@ export default function AddProjectForm() {
           startDate: '',
           githubUrls: [''],
           liveUrls: [''],
-          images: ['']
+          images: [''],
+          videos: ['']
         })
       } else {
         setMessage({ type: 'error', text: data.message || 'Failed to add project' })
@@ -86,21 +90,21 @@ export default function AddProjectForm() {
     }))
   }
 
-  const handleUrlChange = (type: 'githubUrls' | 'liveUrls', idx: number, value: string) => {
+  const handleUrlChange = (type: 'githubUrls' | 'liveUrls' | 'videos', idx: number, value: string) => {
     setFormData(prev => ({
       ...prev,
       [type]: prev[type].map((url, i) => i === idx ? value : url)
     }))
   }
 
-  const addUrlField = (type: 'githubUrls' | 'liveUrls') => {
+  const addUrlField = (type: 'githubUrls' | 'liveUrls' | 'videos') => {
     setFormData(prev => ({
       ...prev,
       [type]: [...prev[type], '']
     }))
   }
 
-  const removeUrlField = (type: 'githubUrls' | 'liveUrls', idx: number) => {
+  const removeUrlField = (type: 'githubUrls' | 'liveUrls' | 'videos', idx: number) => {
     setFormData(prev => ({
       ...prev,
       [type]: prev[type].filter((_, i) => i !== idx)
@@ -352,6 +356,37 @@ export default function AddProjectForm() {
               ))}
             </div>
           )}
+        </div>
+
+        {/* Video URLs */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Video URLs
+          </label>
+          {formData.videos.map((url, idx) => (
+            <div key={idx} className="flex items-center space-x-2 mb-2">
+              <input
+                type="url"
+                value={url}
+                onChange={e => handleUrlChange('videos', idx, e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=... atau https://vimeo.com/..."
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              />
+              <button
+                type="button"
+                onClick={() => removeUrlField('videos', idx)}
+                className="text-red-500 hover:text-red-700"
+              >Remove</button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => addUrlField('videos')}
+            className="text-blue-500 hover:text-blue-700"
+          >Add Video</button>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Gunakan URL video dari YouTube, Vimeo, atau platform video lainnya
+          </p>
         </div>
 
         <button
