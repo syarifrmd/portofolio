@@ -384,7 +384,7 @@ export default function Home() {
                </div>
                <div className="text-center lg:text-right space-y-2 group">
                  <p className="text-neutral-300 text-base lg:text-lg group-hover:text-blue-400 transition-colors duration-300">Complete<br />Project</p>
-                 <p className="stat-counter text-white text-3xl lg:text-4xl sm:text-5xl font-bold group-hover:text-blue-400 transition-colors duration-300">project.length</p>
+                 <p className="stat-counter text-white text-3xl lg:text-4xl sm:text-5xl font-bold group-hover:text-blue-400 transition-colors duration-300">{projects.length}</p>
                </div>
                <div className="text-center lg:text-right space-y-2 group">
                  <p className="text-neutral-300 text-base lg:text-lg group-hover:text-blue-400 transition-colors duration-300">Client</p>
