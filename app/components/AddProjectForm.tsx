@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
+import FileUpload from './FileUpload'
+import { X, ExternalLink } from 'lucide-react'
 
 interface ProjectForm {
   title: string;
@@ -14,6 +16,14 @@ interface ProjectForm {
   liveUrls: string[];
   images: string[];
   videos: string[];
+}
+
+interface UploadedFile {
+  url: string;
+  publicId: string;
+  originalName: string;
+  size: number;
+  type: string;
 }
 
 export default function AddProjectForm() {
@@ -31,6 +41,7 @@ export default function AddProjectForm() {
   })
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -72,6 +83,7 @@ export default function AddProjectForm() {
           images: [''],
           videos: ['']
         })
+        setUploadedFiles([])
       } else {
         setMessage({ type: 'error', text: data.message || 'Failed to add project' })
       }
@@ -130,6 +142,39 @@ export default function AddProjectForm() {
       ...prev,
       images: prev.images.filter((_, i) => i !== idx)
     }))
+  }
+
+  const handleFileUploaded = (fileData: UploadedFile) => {
+    setUploadedFiles(prev => [...prev, fileData])
+    
+    // Add to appropriate array based on file type
+    if (fileData.type.startsWith('image/')) {
+      setFormData(prev => ({
+        ...prev,
+        images: [...prev.images, fileData.url]
+      }))
+    } else if (fileData.type.startsWith('video/')) {
+      setFormData(prev => ({
+        ...prev,
+        videos: [...prev.videos, fileData.url]
+      }))
+    }
+  }
+
+  const removeUploadedFile = (fileUrl: string, fileType: string) => {
+    setUploadedFiles(prev => prev.filter(file => file.url !== fileUrl))
+    
+    if (fileType.startsWith('image/')) {
+      setFormData(prev => ({
+        ...prev,
+        images: prev.images.filter(url => url !== fileUrl)
+      }))
+    } else if (fileType.startsWith('video/')) {
+      setFormData(prev => ({
+        ...prev,
+        videos: prev.videos.filter(url => url !== fileUrl)
+      }))
+    }
   }
 
   return (
@@ -311,83 +356,167 @@ export default function AddProjectForm() {
           </button>
         </div>
 
-        {/* Images URLs */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Image URLs
-          </label>
-          {formData.images.map((url, idx) => (
-            <div key={idx} className="flex items-center space-x-2 mb-2">
-              <input
-                type="url"
-                value={url}
-                onChange={e => handleImagesChange(idx, e.target.value)}
-                placeholder="https://images.unsplash.com/photo-..."
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-              />
-              <button
-                type="button"
-                onClick={() => removeImageField(idx)}
-                className="text-red-500 hover:text-red-700"
-              >Remove</button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={addImageField}
-            className="text-blue-500 hover:text-blue-700"
-          >Add Image</button>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Gunakan URL gambar dari Unsplash, Imgur, atau hosting gambar lainnya
-          </p>
-          {/* Image Previews */}
-          {formData.images.filter(url => url.trim() !== '').length > 0 && (
-            <div className="mt-3 grid grid-cols-2 gap-3">
-              {formData.images.filter(url => url.trim() !== '').map((url, idx) => (
-                <div key={idx} className="relative w-full h-24 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
-                  <Image
-                    src={url}
-                    alt={`Preview ${idx+1}`}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
-                </div>
-              ))}
+        {/* File Upload Section */}
+        <div className="space-y-6">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+            Upload Images & Videos
+          </h3>
+          
+          {/* File Upload Component */}
+          <FileUpload
+            onFileUploaded={handleFileUploaded}
+            accept="image/*,video/*"
+            multiple={false}
+            maxSize={10}
+            folder="portfolio/projects"
+            className="mb-4"
+          />
+
+          {/* Uploaded Files Preview */}
+          {uploadedFiles.length > 0 && (
+            <div className="space-y-3">
+              <h4 className="font-medium text-gray-700 dark:text-gray-300">Uploaded Files:</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {uploadedFiles.map((file, idx) => (
+                  <div key={idx} className="relative group border border-gray-200 dark:border-gray-600 rounded-lg p-3">
+                    {file.type.startsWith('image/') ? (
+                      <div className="relative w-full h-32 bg-gray-100 dark:bg-gray-700 rounded-md overflow-hidden">
+                        <Image
+                          src={file.url}
+                          alt={file.originalName}
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-32 bg-gray-100 dark:bg-gray-700 rounded-md flex items-center justify-center">
+                        <div className="text-center">
+                          <div className="w-12 h-12 mx-auto mb-2 bg-blue-500 rounded-lg flex items-center justify-center">
+                            <span className="text-white font-bold text-lg">🎬</span>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">Video File</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* File Info */}
+                    <div className="mt-2">
+                      <p className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">
+                        {file.originalName}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {(file.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </div>
+
+                    {/* Remove Button */}
+                    <button
+                      type="button"
+                      onClick={() => removeUploadedFile(file.url, file.type)}
+                      className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+
+                    {/* View Link */}
+                    <a
+                      href={file.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="absolute top-2 right-10 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
 
-        {/* Video URLs */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Video URLs
-          </label>
-          {formData.videos.map((url, idx) => (
-            <div key={idx} className="flex items-center space-x-2 mb-2">
-              <input
-                type="url"
-                value={url}
-                onChange={e => handleUrlChange('videos', idx, e.target.value)}
-                placeholder="https://www.youtube.com/watch?v=... atau https://vimeo.com/..."
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-              />
-              <button
-                type="button"
-                onClick={() => removeUrlField('videos', idx)}
-                className="text-red-500 hover:text-red-700"
-              >Remove</button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() => addUrlField('videos')}
-            className="text-blue-500 hover:text-blue-700"
-          >Add Video</button>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Gunakan URL video dari YouTube, Vimeo, atau platform video lainnya
-          </p>
+        {/* Manual URL Input (Alternative Method) */}
+        <div className="border-t pt-6">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+            Or Add URLs Manually
+          </h3>
+          
+          {/* Images URLs */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Image URLs
+            </label>
+            {formData.images.map((url, idx) => (
+              <div key={idx} className="flex items-center space-x-2 mb-2">
+                <input
+                  type="url"
+                  value={url}
+                  onChange={e => handleImagesChange(idx, e.target.value)}
+                  placeholder="https://images.unsplash.com/photo-..."
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeImageField(idx)}
+                  className="text-red-500 hover:text-red-700"
+                >Remove</button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addImageField}
+              className="text-blue-500 hover:text-blue-700"
+            >Add Image URL</button>
+            
+            {/* Image Previews for Manual URLs */}
+            {formData.images.filter(url => url.trim() !== '' && !uploadedFiles.some(file => file.url === url)).length > 0 && (
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                {formData.images.filter(url => url.trim() !== '' && !uploadedFiles.some(file => file.url === url)).map((url, idx) => (
+                  <div key={idx} className="relative w-full h-24 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+                    <Image
+                      src={url}
+                      alt={`Preview ${idx+1}`}
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
+
+          {/* Video URLs */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Video URLs
+            </label>
+            {formData.videos.map((url, idx) => (
+              <div key={idx} className="flex items-center space-x-2 mb-2">
+                <input
+                  type="url"
+                  value={url}
+                  onChange={e => handleUrlChange('videos', idx, e.target.value)}
+                  placeholder="https://www.youtube.com/watch?v=... atau https://vimeo.com/..."
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeUrlField('videos', idx)}
+                  className="text-red-500 hover:text-red-700"
+                >Remove</button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => addUrlField('videos')}
+              className="text-blue-500 hover:text-blue-700"
+            >Add Video URL</button>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Upload video files directly or use URLs from YouTube, Vimeo, etc.
+            </p>
+          </div>
 
         <button
           type="submit"
