@@ -2,6 +2,7 @@ export { };
 
 declare module '*.glb';
 declare module '*.png';
+declare module 'react-vertical-timeline-component';
 
 declare module 'meshline' {
   export const MeshLineGeometry: any;
