@@ -85,7 +85,8 @@ CLOUDINARY_API_SECRET=your-api-secret
 ```
 
 For Vercel, add these variables under the Production environment and redeploy
-after changing them. The upload route requires all three variables.
+after changing them. The upload route requires all three variables. Uploads are
+limited to 4 MB to stay below the Vercel Serverless Function request limit.
 
 ### 4. Seed the Database (Optional)
 

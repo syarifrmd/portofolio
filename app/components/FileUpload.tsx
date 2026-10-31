@@ -31,7 +31,7 @@ export default function FileUpload({
   onFileUploaded,
   accept = 'image/*,video/*',
   multiple = false,
-  maxSize = 10,
+  maxSize = 4,
   folder = 'portfolio',
   className = ''
 }: FileUploadProps) {
@@ -82,7 +82,10 @@ export default function FileUpload({
       clearInterval(progressInterval)
       setUploadProgress(100)
 
-      const result = await response.json()
+      const result = await response.json().catch(() => ({
+        success: false,
+        message: `Upload failed (HTTP ${response.status})`,
+      }))
 
       if (result.success) {
         onFileUploaded(result.data)

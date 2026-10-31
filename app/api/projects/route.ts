@@ -89,7 +89,8 @@ export async function POST(request: NextRequest) {
     console.error('Error creating project:', error)
     return NextResponse.json({ 
       success: false, 
-      message: 'Failed to create project' 
+      message: 'Failed to create project',
+      error: error instanceof Error ? error.message : 'Unknown database error'
     }, { status: 500 })
   }
 }

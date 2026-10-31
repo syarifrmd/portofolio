@@ -12,7 +12,8 @@ export async function connectToDatabase() {
     return { client, db }
   } catch (error) {
     console.error('Error connecting to database:', error)
-    throw new Error('Failed to connect to database')
+    const message = error instanceof Error ? error.message : 'Unknown database error'
+    throw new Error(`Failed to connect to database: ${message}`, { cause: error })
   }
 }
 

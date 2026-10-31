@@ -45,13 +45,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate file size (10MB limit)
-    const maxSize = 10 * 1024 * 1024 // 10MB in bytes
+    // Keep below Vercel Serverless Function's request body limit.
+    const maxSize = 4 * 1024 * 1024
     if (file.size > maxSize) {
       return NextResponse.json(
         { 
           success: false, 
-          message: 'File size too large. Please upload files smaller than 10MB' 
+          message: 'File size too large. Please upload files smaller than 4MB'
         },
         { status: 400 }
       )
