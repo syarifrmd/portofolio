@@ -1,15 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { uploadToCloudinary } from '@/lib/cloudinary'
+import { assertCloudinaryConfigured, uploadToCloudinary } from '@/lib/cloudinary'
+
+export const runtime = 'nodejs'
+export const maxDuration = 60
 
 export async function POST(request: NextRequest) {
   try {
     console.log('📤 File upload API called')
+    assertCloudinaryConfigured()
     
     const formData = await request.formData()
-    const file = formData.get('file') as File
-    const folder = formData.get('folder') as string || 'portfolio'
+    const file = formData.get('file')
+    const folderValue = formData.get('folder')
+    const folder = typeof folderValue === 'string' && folderValue.trim()
+      ? folderValue.trim()
+      : 'portfolio'
     
-    if (!file) {
+    if (!(file instanceof File)) {
       return NextResponse.json(
         { success: false, message: 'No file provided' },
         { status: 400 }

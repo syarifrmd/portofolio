@@ -76,6 +76,17 @@ SMTP_PASS=your_16_digit_app_password
 RECIPIENT_EMAIL=your-email@gmail.com
 ```
 
+**For image and video uploads:**
+
+```env
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+```
+
+For Vercel, add these variables under the Production environment and redeploy
+after changing them. The upload route requires all three variables.
+
 ### 4. Seed the Database (Optional)
 
 You can use the provided script to seed your database with some initial project data.
